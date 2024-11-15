@@ -1,0 +1,64 @@
+<form
+  class="flex justify-center items-center m-h-screen grow"
+  (ngSubmit)="submitConfig()"
+>
+  <div class="grid-cols-1 w-[40%]">
+    <label class="input input-bordered flex items-center gap-2 rounded-badge">
+      <span class="font-bold">Total Tickets:</span>
+      <input
+        type="number"
+        class="grow"
+        [(ngModel)]="config.totalTickets"
+        name="totalTickets"
+        required
+      />
+    </label>
+    <label
+      class="input input-bordered flex items-center gap-2 rounded-badge mt-10"
+    >
+      <span class="font-bold">Release Rate: </span>
+      <input
+        type="number"
+        class="grow"
+        [(ngModel)]="config.releaseRate"
+        name="releaseRate"
+        required
+      />
+    </label>
+    <label
+      class="input input-bordered flex items-center gap-2 rounded-badge mt-10"
+    >
+      <span class="font-bold">Buying Rate: </span>
+      <input
+        type="number"
+        class="grow"
+        [(ngModel)]="config.buyingRate"
+        name="buyingRate"
+        required
+      />
+    </label>
+    <label
+      class="input input-bordered flex items-center gap-2 rounded-badge mt-10"
+    >
+      <span class="font-bold">Max Capacity: </span>
+      <input
+        type="number"
+        class="grow"
+        [(ngModel)]="config.maxCapacity"
+        name="maxCapacity"
+        required
+      />
+    </label>
+    <div class="flex justify-end">
+      <div class="mt-5">
+        <button
+          class="btn bg-blue-500 hover:bg-blue-700 text-white rounded-full px-6"
+          type="submit"
+        >
+          <fa-icon [icon]="['fas', 'plus']"></fa-icon>
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+</form>

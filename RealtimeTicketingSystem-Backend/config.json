@@ -1,0 +1,6 @@
+{
+  "totalTickets": 20,
+  "releaseRate": 1000,
+  "buyingRate": 500,
+  "maxCapacity": 10
+}
