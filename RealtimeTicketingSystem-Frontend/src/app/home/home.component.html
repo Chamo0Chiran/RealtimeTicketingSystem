@@ -1,0 +1,77 @@
+<div class="flex flex-col justify-center items-center p-4">
+  <div
+    class="flex-wrap border-2 border-gray-600 w-full sm:w-96 h-60 flex justify-center items-center text-7xl font-bold rounded-xl"
+  >
+    {{ poolSize }}
+  </div>
+  <div class="flex space-x-4 mt-4 w-full sm:w-auto justify-center">
+    <button
+      (click)="startConnection()"
+      [disabled]="isConnected || isStopping"
+      class="btn px-6 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded flex-grow sm:flex-grow-0 text-xl"
+    >
+      <fa-icon [icon]="['fas', 'circle-play']"></fa-icon>Start
+    </button>
+    <button
+      (click)="stopConnection()"
+      class="btn px-6 py-2 bg-red-500 hover:bg-red-700 text-white rounded flex-grow sm:flex-grow-0 text-xl"
+    >
+      <fa-icon [icon]="['fas', 'circle-stop']"></fa-icon>Stop
+    </button>
+  </div>
+  <button
+    class="btn mt-5 bg-green-700 hover:bg-green-900 text-white rounded text-xl"
+    onclick="config_modal.showModal()"
+  >
+    <fa-icon [icon]="['fas', 'wrench']"></fa-icon> Configuration
+  </button>
+  <dialog id="config_modal" class="modal">
+    <div class="modal-box">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+          ✕
+        </button>
+      </form>
+      <h2 class="text-lg font-bold">Configuration Settings</h2>
+      <p class="mt-5">
+        Click on Create to create a new configuration or Load to load from
+        previous configuration.
+      </p>
+
+      <div class="mt-8 flex justify-between">
+        <a
+          href="/newconfig"
+          class="btn bg-blue-500 hover:bg-blue-700 text-white rounded"
+          >Create</a
+        >
+        <form method="dialog">
+          <button
+            class="btn bg-green-700 hover:bg-green-900 text-white rounded"
+            (click)="loadFromFile()"
+          >
+            Load
+          </button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+  <div class="mt-10 w-full sm:w-96 h-80 grow">
+    <div class="border border-black rounded p-10">
+      <h2 class="font-bold text-2xl text-center">Current Configuration</h2>
+      <div class="flex">
+        <div>
+          <p class="mt-5">Total Tickets</p>
+          <p class="mt-5">Release Rate</p>
+          <p class="mt-5">Buying Rate</p>
+          <p class="mt-5">Max Capactiy</p>
+        </div>
+        <div class="ml-3">
+          <p class="mt-5">{{ fetchedConfiguration.totalTickets }}</p>
+          <p class="mt-5">{{ fetchedConfiguration.releaseRate }}</p>
+          <p class="mt-5">{{ fetchedConfiguration.buyingRate }}</p>
+          <p class="mt-5">{{ fetchedConfiguration.maxCapacity }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
