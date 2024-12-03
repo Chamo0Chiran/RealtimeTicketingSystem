@@ -47,7 +47,7 @@ public class Customer implements Runnable {
                 currentCustomer = (currentCustomer % numberOfCustomers) + 1;
                 condition.signalAll();
                 Thread.sleep(config.getBuyingRate());
-                ticketPool.buyTicket(customerId, getLastTicketId());
+                ticketPool.buyTicket(customerId);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println("Customer " + customerId + " interrupted while sleeping.");

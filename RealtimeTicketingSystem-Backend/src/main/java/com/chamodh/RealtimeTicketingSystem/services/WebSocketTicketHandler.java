@@ -77,7 +77,6 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
 
     public void stop() {
         running = false;
-
         for (Thread thread : threads) {
             thread.interrupt();
         }
@@ -138,39 +137,35 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
                 sendMessage(message);
                 System.out.println(message);
             }
-
-//            ticketPool.add(lastTicketId);
-//            String message = "Vendor " + vendorId + " added a ticket: " + lastTicketId + " Ticket pool size: " + ticketPool.size();
-//            sendMessage(message);
-//            System.out.println(message);
-//
-//            sendMessage(String.valueOf(ticketPool.size()));
-
             notifyAll();
     }
 
-    public synchronized void buyTicket(int customerId, int lastTicket) {
-            if (!running) return;
+    public synchronized void buyTicket(int customerId) {
+        if (!running) return;
 
-            if (ticketPool.isEmpty()) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    System.out.println("Customer " + customerId + " was interrupted waiting.");
-                }
-                String message = "Customer " + customerId + " says: No tickets available to buy.";
-                sendMessage(message);
-                System.out.println(message);
-                return;
+        if (ticketPool.isEmpty()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                System.out.println("Customer " + customerId + " was interrupted waiting.");
             }
-            ticketPool.removeLast();
-
-            String message = "Customer " + customerId + " bought ticketID: " + lastTicket + " pool size: " + ticketPool.size();
+            String message = "Customer " + customerId + " says: No tickets available to buy.";
             sendMessage(message);
             System.out.println(message);
+            return;
+        }
 
-            sendMessage(String.valueOf(ticketPool.size()));
 
-            notifyAll();
+        int lastIndex = ticketPool.size() - 1;
+        int ticketId = ticketPool.remove(lastIndex);
+
+        String message = "Customer " + customerId + " bought ticket ID: " + ticketId + " Pool size: " + ticketPool.size();
+        sendMessage(message);
+        System.out.println(message);
+
+        sendMessage(String.valueOf(ticketPool.size()));
+
+        notifyAll();
     }
+
 }
