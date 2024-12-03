@@ -1,6 +1,6 @@
 {
-  "totalTickets": 20,
-  "releaseRate": 2000,
-  "buyingRate": 5000,
-  "maxCapacity": 10
+  "totalTickets": 10,
+  "releaseRate": 3000,
+  "buyingRate": 2000,
+  "maxCapacity": 5
 }

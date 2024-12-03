@@ -51,9 +51,9 @@ public class Vendor implements Runnable {
                     Thread.sleep(config.getReleaseRate());
                 }
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // Re-interrupt the thread
+                Thread.currentThread().interrupt();
                 System.out.println("Vendor " + vendorId + " interrupted while sleeping.");
-                break; // Exit the loop
+                break;
             } finally {
                 lock.unlock();
             }

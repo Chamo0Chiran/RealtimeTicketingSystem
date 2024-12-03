@@ -49,9 +49,9 @@ public class Customer implements Runnable {
                 Thread.sleep(config.getBuyingRate());
                 ticketPool.buyTicket(customerId, getLastTicketId());
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // Re-interrupt the thread
+                Thread.currentThread().interrupt();
                 System.out.println("Customer " + customerId + " interrupted while sleeping.");
-                break; // Exit the loop
+                break;
             } finally {
                 lock.unlock();
             }

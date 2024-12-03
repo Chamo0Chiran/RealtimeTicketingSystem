@@ -21,9 +21,10 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
     private WebSocketSession currentSession;
     private final ConfigurationService configService;
     private final Configuration config;
+    private boolean webSocketConnected = false;
 
-    private volatile boolean running = false; // Initially not running
-    private List<Thread> threads = new ArrayList<>(); // Track threads
+    private volatile boolean running = false;
+    private List<Thread> threads = new ArrayList<>();
 
     public WebSocketTicketHandler(ConfigurationService configService) {
         this.configService = configService;
@@ -33,19 +34,24 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         this.currentSession = session;
-        session.sendMessage(new TextMessage("Connected websocket."));
-        System.out.println("Connected to websocket.");
+        webSocketConnected = true;
+        sendMessage("WebSocket Connected");
+        System.out.println("WebSocket Connected");
 
         startThreads();
     }
 
-    // Method to start all threads
-    public void startThreads() {
+
+
+    public synchronized void startThreads() {
+        if (!webSocketConnected) {
+            System.out.println("Waiting for WebSocket connection...");
+            return;
+        }
         running = true;
-        ticketPool.clear(); // Clear the ticket pool to reset state
+        ticketPool.clear();
         threads.clear();
 
-        // Reset static fields
         Customer.reset();
         Vendor.reset();
 
@@ -54,7 +60,7 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
         Thread customer1 = new Thread(new Customer(1, this, config));
         Thread customer2 = new Thread(new Customer(2, this, config));
 
-        threads.add(vendor1); // Track the threads
+        threads.add(vendor1);
         threads.add(vendor2);
         threads.add(customer1);
         threads.add(customer2);
@@ -63,9 +69,12 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
         vendor2.start();
         customer1.start();
         customer2.start();
+
+        System.out.println("Threads started after WebSocket connection.");
     }
 
-    // Method to stop all threads and close WebSocket
+
+
     public void stop() {
         running = false;
 
@@ -75,7 +84,7 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
 
         for (Thread thread : threads) {
             try {
-                thread.join(); // Wait for each thread to finish
+                thread.join();
             } catch (InterruptedException e) {
                 System.out.println("Thread interrupted while waiting to join.");
                 Thread.currentThread().interrupt();
@@ -88,16 +97,13 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
             try {
                 currentSession.close(CloseStatus.NORMAL);
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Couldn't close the current session successfully.");
             }
         }
 
-        threads.clear(); // Clear the threads list
+        threads.clear();
     }
 
-    public boolean isRunning() {
-        return running;
-    }
 
     private void sendMessage(String message) {
         if (currentSession != null && currentSession.isOpen()) {
@@ -109,9 +115,8 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void addTicket(int vendorId, int lastTicketId) {
-        synchronized (this) {
-            if (!running) return; // Check if running
+    public synchronized void addTicket(int vendorId, int lastTicketId) {
+            if (!running) return;
 
             try {
                 if (ticketPool.size() == config.getMaxCapacity()) {
@@ -119,6 +124,14 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
                     sendMessage(message);
                     System.out.println(message);
                     wait();
+                } else {
+                    ticketPool.add(lastTicketId);
+                    String message = "Vendor " + vendorId + " added a ticket: " + lastTicketId + " Ticket pool size: " + ticketPool.size();
+                    System.out.println(message);
+                    sendMessage(message);
+                    sendMessage(String.valueOf(ticketPool.size()));
+
+                    notifyAll();
                 }
             } catch (InterruptedException e) {
                 String message = "Vendor Interrupted Waiting";
@@ -126,20 +139,18 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
                 System.out.println(message);
             }
 
-            ticketPool.add(lastTicketId);
-            String message = "Vendor " + vendorId + " added a ticket: " + lastTicketId + " Ticket pool size: " + ticketPool.size();
-            sendMessage(message);
-            System.out.println(message);
-
-            sendMessage(String.valueOf(ticketPool.size()));
+//            ticketPool.add(lastTicketId);
+//            String message = "Vendor " + vendorId + " added a ticket: " + lastTicketId + " Ticket pool size: " + ticketPool.size();
+//            sendMessage(message);
+//            System.out.println(message);
+//
+//            sendMessage(String.valueOf(ticketPool.size()));
 
             notifyAll();
-        }
     }
 
-    public void buyTicket(int customerId, int lastTicket) {
-        synchronized (this) {
-            if (!running) return; // Check if running
+    public synchronized void buyTicket(int customerId, int lastTicket) {
+            if (!running) return;
 
             if (ticketPool.isEmpty()) {
                 try {
@@ -161,6 +172,5 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
             sendMessage(String.valueOf(ticketPool.size()));
 
             notifyAll();
-        }
     }
 }
