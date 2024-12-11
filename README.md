@@ -29,9 +29,34 @@ cd RealtimeTicketingSystem
 ```
 
 ### Backend Setup
-
+Navigate to the backend directory:
+```bash
+cd RealtimeTicketingSystem-Backend
+```
+Build the backend project using Maven:
+```bash
+mvn clean install
+```
+Run the backend application:
+```bash
+mvn spring-boot:run
+```
+### Frontend Setup
 Use the package manager [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm/) to install node modules.
 
+Navigate to the frontend directory:
 ```bash
-pip install foobar
+cd RealtimeTicketingSystem-Frontend
 ```
+Install the dependancies with node package manager:
+```bash
+npm install
+```
+Start the frontend application:
+```bash
+ng serve
+```
+
+## Usage
+Access the frontend application at ```http//:localhost:4200```
+Access the backend application at ```http//:localhost:8080```
