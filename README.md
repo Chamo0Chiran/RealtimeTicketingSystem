@@ -20,7 +20,7 @@ The project is organized into two structures
 ## Installation
 
 Clone the repository:
-```bash
+```
 git clone https://github.com/Chamo0Chiran/RealtimeTicketingSystemCLI.git
 ```
 Navigate to the project directory:
