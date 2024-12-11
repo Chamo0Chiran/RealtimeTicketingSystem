@@ -58,5 +58,8 @@ ng serve
 ```
 
 ## Usage
-Access the frontend application at ```http//:localhost:4200```
-Access the backend application at ```http//:localhost:8080```
+* Access the frontend application at ```http//:localhost:4200```
+* Access the backend application at ```http//:localhost:8080```
+
+##Contact
+For any questions or inquires, please contact me through GitHub.
