@@ -7,6 +7,12 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Customer class represents the customer in the ticket purchasing system. Each customer
+ * attempts to buy tickets from a shared ticket pool in WebSockethandler at a specified rate.
+ * The class uses ReentrantLocks and Conditions to manage the order of ticket buying among multiple
+ * customers.
+ */
 public class Customer implements Runnable {
     private final int customerId;
     private final WebSocketTicketHandler ticketPool;
@@ -17,25 +23,33 @@ public class Customer implements Runnable {
     private static final Lock lock = new ReentrantLock();
     private static final Condition condition = lock.newCondition();
 
+    /**
+     * Constructs a new customer instance with a unique ID, a specified WebsocketHandler
+     * @param customerId the unique ID of the customer
+     * @param ticketPool the ticket pool from the WebsocketHandler class
+     * @param config the configuration settings containing the buying rate.
+     */
     public Customer(int customerId, WebSocketTicketHandler ticketPool, Configuration config) {
         this.customerId = customerId;
         this.ticketPool = ticketPool;
         this.config = config;
     }
 
-    public int getCustomerId() {
-        return customerId;
-    }
-
-    public static int getLastTicketId() {
-        return boughtTicketId++;
-    }
-
+    /**
+     * Resets the current customer and the bought ticket ID to their initial values when stopping and
+     * restarting the application.
+     */
     public static void reset() {
         currentCustomer = 1;
         boughtTicketId = 1;
     }
 
+    /**
+     * Customer attempts to buy tickets from the WebsocketTicketHandler ticket pool array.
+     * Once the customer buys tickets it rests for a time duration before attempting to buy
+     * another. This uses Reentrant locks and Conditions to manage order of ticket buying among
+     * multiple customers.
+     */
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted() && boughtTicketId < config.getTotalTickets()) {

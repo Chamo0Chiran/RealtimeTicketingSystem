@@ -14,6 +14,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * The WebsocketTicketHandler class handles Websocket connections and manages the
+ * ticket purchasing system.
+ * It initializes customer and vendor threads, manages ticket pool and broadcasts live
+ * status of the ticket pool to frontend via websockets.
+ */
 @Component
 public class WebSocketTicketHandler extends TextWebSocketHandler {
 
@@ -26,11 +32,23 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
     private volatile boolean running = false;
     private List<Thread> threads = new ArrayList<>();
 
+    /**
+     * Constructs a new WebsocketTicketHandle instance with specified configurations retrieved
+     * by Configuration service.
+     * @param configService
+     */
     public WebSocketTicketHandler(ConfigurationService configService) {
         this.configService = configService;
         this.config = configService.readConfigurationFile();
     }
 
+    /**
+     * Called after a websocket connection is established.
+     * Sets the current websocket session, marks the websocket as connected, and starts
+     * the customer and vendor threads by calling startThreads() method.
+     * @param session the websocket session that is established
+     * @throws Exception if an error occurs during the connection establishment.
+     */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         this.currentSession = session;
@@ -41,8 +59,12 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
         startThreads();
     }
 
-
-
+    /**
+     * Creates and starts threads for Vendor and Customer instances for the ticket purchasing
+     * system prototype.
+     * Clears the ticket pool and initializes the threads if Websocket is connected.
+     * The method resets Customer and Vendor with reset() methods.
+     */
     public synchronized void startThreads() {
         if (!webSocketConnected) {
             System.out.println("Waiting for WebSocket connection...");
@@ -73,8 +95,10 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
         System.out.println("Threads started after WebSocket connection.");
     }
 
-
-
+    /**
+     * Stops all running vendor and customer threads and closes websocket session.
+     * Interrupts each threads after waiting for them to join.
+     */
     public void stop() {
         running = false;
         for (Thread thread : threads) {
@@ -103,7 +127,10 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
         threads.clear();
     }
 
-
+    /**
+     * Sends a message to the current websocket session if it is open.
+     * @param message message with current status of the ticket pool.
+     */
     private void broadcastMessage(String message) {
         if (currentSession != null && currentSession.isOpen()) {
             try {
@@ -114,6 +141,13 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * Adds a ticket to ticket pool array. If the ticket pool reaches max capacity broadcasts a message
+     * saying vendors are waiting since the ticket pool is at max capacity. The method broadcasts a message
+     * when the vendors added a ticket with the ticket pool size.
+     * @param vendorId the ID of the vendor adding the ticket.
+     * @param lastTicketId the ID of the last ticket being added.
+     */
     public synchronized void addTicket(int vendorId, int lastTicketId) {
             if (!running) return;
 
@@ -140,6 +174,12 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
             notifyAll();
     }
 
+    /**
+     * Removes a ticket from the ticket pool for a customer. If no tickets available it broadcasts
+     * a message saying there are no tickets available. Customer waits till there's a ticket in the
+     * ticket pool to buy. The method broadcasts a message when a customer bought a ticket.
+     * @param customerId the ID of the customer buying the ticket.
+     */
     public synchronized void buyTicket(int customerId) {
         if (!running) return;
 
