@@ -1,5 +1,8 @@
 package com.chamodh.RealtimeTicketingSystem.utils;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "ticketingsystem")
 public class Configuration {
 
     private int totalTickets;

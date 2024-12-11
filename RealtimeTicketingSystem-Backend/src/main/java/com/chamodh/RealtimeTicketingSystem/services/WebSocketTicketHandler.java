@@ -35,7 +35,7 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         this.currentSession = session;
         webSocketConnected = true;
-        sendMessage("WebSocket Connected");
+        broadcastMessage("WebSocket Connected");
         System.out.println("WebSocket Connected");
 
         startThreads();
@@ -104,7 +104,7 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
     }
 
 
-    private void sendMessage(String message) {
+    private void broadcastMessage(String message) {
         if (currentSession != null && currentSession.isOpen()) {
             try {
                 currentSession.sendMessage(new TextMessage(message));
@@ -120,21 +120,21 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
             try {
                 if (ticketPool.size() == config.getMaxCapacity()) {
                     String message = "Ticket pool reached max capacity.";
-                    sendMessage(message);
+                    broadcastMessage(message);
                     System.out.println(message);
                     wait();
                 } else {
                     ticketPool.add(lastTicketId);
                     String message = "Vendor " + vendorId + " added a ticket: " + lastTicketId + " Ticket pool size: " + ticketPool.size();
                     System.out.println(message);
-                    sendMessage(message);
-                    sendMessage(String.valueOf(ticketPool.size()));
+                    broadcastMessage(message);
+                    broadcastMessage(String.valueOf(ticketPool.size()));
 
                     notifyAll();
                 }
             } catch (InterruptedException e) {
                 String message = "Vendor Interrupted Waiting";
-                sendMessage(message);
+                broadcastMessage(message);
                 System.out.println(message);
             }
             notifyAll();
@@ -150,20 +150,19 @@ public class WebSocketTicketHandler extends TextWebSocketHandler {
                 System.out.println("Customer " + customerId + " was interrupted waiting.");
             }
             String message = "Customer " + customerId + " says: No tickets available to buy.";
-            sendMessage(message);
+            broadcastMessage(message);
             System.out.println(message);
             return;
         }
-
 
         int lastIndex = ticketPool.size() - 1;
         int ticketId = ticketPool.remove(lastIndex);
 
         String message = "Customer " + customerId + " bought ticket ID: " + ticketId + " Pool size: " + ticketPool.size();
-        sendMessage(message);
+        broadcastMessage(message);
         System.out.println(message);
 
-        sendMessage(String.valueOf(ticketPool.size()));
+        broadcastMessage(String.valueOf(ticketPool.size()));
 
         notifyAll();
     }
